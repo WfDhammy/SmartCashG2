@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-@)(&qv'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['fluttering-roxanna-wfdhammy-7ab84b37.koyeb.app']
 
 
 INSTALLED_APPS = [
