@@ -104,14 +104,21 @@ SIMPLE_JWT = {
 
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR /'static',
+    'static'
+]
+STATIC_ROOT ='staticfiles'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 AUTHENTICATION_BACKENDS = [
     "user.backend.CustomBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
