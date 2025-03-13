@@ -104,10 +104,6 @@ SIMPLE_JWT = {
 
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-    "static",
-]
 
 AUTHENTICATION_BACKENDS = [
     "user.backend.CustomBackend",
