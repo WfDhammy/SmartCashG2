@@ -1,4 +1,5 @@
 from .models import User
+from wallet.models import Wallet
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 
@@ -16,6 +17,9 @@ class UserSignupSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(password)
         user.save()
+        user_wallet = Wallet.objects.create(user=user)
+        if user_wallet:
+            user_wallet.save()
         return user
     
 

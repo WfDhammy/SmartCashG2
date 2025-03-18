@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-@)(&qv'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['fluttering-roxanna-wfdhammy-7ab84b37.koyeb.app']
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'wallet',
+    'drf_yasg',
 ]
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
 
