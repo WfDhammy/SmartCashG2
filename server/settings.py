@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-@)(&qv'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -110,7 +110,6 @@ STATICFILES_DIRS = [
     BASE_DIR /'static',
     'static'
 ]
-STATIC_ROOT ='staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
