@@ -1,7 +1,7 @@
 import os
 import hashlib
 import hmac
-
+import uuid
 import json
 import requests
 from dotenv import load_dotenv
@@ -38,3 +38,76 @@ def initialize(email: str, amount):
     return {"error": response.json().get('message', 'An error occurred')}
 
 
+import uuid
+import json
+import requests
+
+def generateRescipient(accNo: int, accName: str, bankCode: int):
+    url = "https://api.paystack.co/transferrecipient"
+    headers = {
+        'Authorization': f'Bearer {YOUR_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    body = {
+        "type": "nuban",
+        "name": accName,
+        "account_number": accNo, 
+        "bank_code": bankCode,
+        "currency": "NGN"
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(body))
+    if response.status_code == 201:
+        data = response.json()
+        recipient_code = data['data']['recipient_code']
+        return recipient_code
+
+def transfer(balance, amount, description, accName, accNo, bankCode):
+    url  = "https://api.paystack.co/transfer"
+    vUUID = uuid.uuid4()  # Generate UUID
+    
+    headers = {
+        'Authorization': f'Bearer {YOUR_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    
+    rcpt = generateRescipient(accName, accNo, bankCode)
+    
+    # Convert UUID to string before including it in the body
+    body = {
+        'source': balance,
+        'amount': amount,
+        'reference': str(vUUID),  # Convert UUID to string
+        "reason": description,
+        'recipient': rcpt
+    }
+    
+    response = requests.post(url, headers=headers, data=json.dumps(body))
+    
+    if response.status_code == 200:
+        data = response.json()
+        status = data['data']['status']
+        if status == "success":
+            return status
+        return {"message": status}
+
+    url  = "https://api.paystack.co/transfer"
+    vUUID = uuid.uuid4()
+    headers = {
+        'Authorization': f'Bearer {YOUR_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    rcpt = generateRescipient(accName, accNo, bankCode)
+    body = {
+        'source ': balance,
+        'amount': amount,
+        'reference': str(vUUID),
+        "reason": description,
+        'recipient': rcpt
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(body))
+    if response.status_code == 200:
+        data = response.json()
+        status = data['data']['status']
+        if status == "success":
+            return status
+        return {"message": status}
