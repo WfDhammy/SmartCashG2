@@ -107,13 +107,16 @@ SIMPLE_JWT = {
 }
 
 
-STATIC_URL = '/static/'
 
-# Add this line for Heroku deployment:
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR /'static',
+    'static'
+]
+STATIC_ROOT ='staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 AUTHENTICATION_BACKENDS = [

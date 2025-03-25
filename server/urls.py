@@ -30,10 +30,9 @@ urlpatterns = [
     re_path(r'^redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)/$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
 
-    # Admin site URL
+ 
     path('admin/', admin.site.urls),
 
-    # Include application-specific URLs
     path('user/v1/', include("user.urls")),
     path('wallet/v1/', include("wallet.urls")),
 
@@ -42,6 +41,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
-# Serve static and media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
