@@ -5,7 +5,7 @@ import uuid
 import json
 import requests
 from dotenv import load_dotenv
-from rest_framework.views import APIView
+
 
 load_dotenv()  # load environment variables from.env file
 
@@ -42,7 +42,7 @@ import uuid
 import json
 import requests
 
-def generateRescipient(accNo: int, accName: str, bankCode: int):
+def generateRescipient(accNo: str, accName: str, bankCode: str):
     url = "https://api.paystack.co/transferrecipient"
     headers = {
         'Authorization': f'Bearer {YOUR_API_KEY}',
@@ -61,53 +61,46 @@ def generateRescipient(accNo: int, accName: str, bankCode: int):
         recipient_code = data['data']['recipient_code']
         return recipient_code
 
-def transfer(balance, amount, description, accName, accNo, bankCode):
-    url  = "https://api.paystack.co/transfer"
-    vUUID = uuid.uuid4()  # Generate UUID
-    
-    headers = {
-        'Authorization': f'Bearer {YOUR_API_KEY}',
-        'Content-Type': 'application/json'
-    }
-    
-    rcpt = generateRescipient(accName, accNo, bankCode)
-    
-    # Convert UUID to string before including it in the body
-    body = {
-        'source': balance,
-        'amount': amount,
-        'reference': str(vUUID),  # Convert UUID to string
-        "reason": description,
-        'recipient': rcpt
-    }
-    
-    response = requests.post(url, headers=headers, data=json.dumps(body))
-    
-    if response.status_code == 200:
-        data = response.json()
-        status = data['data']['status']
-        if status == "success":
-            return status
-        return {"message": status}
+import uuid
+import json
+import requests
 
-    url  = "https://api.paystack.co/transfer"
-    vUUID = uuid.uuid4()
+def transfer(balance, amount, description, rcpt):
+    url = "https://api.paystack.co/transfer"
+    vUUID = uuid.uuid4()  
     headers = {
-        'Authorization': f'Bearer {YOUR_API_KEY}',
+        'Authorization': f'Bearer {YOUR_API_KEY}',  
         'Content-Type': 'application/json'
     }
-    rcpt = generateRescipient(accName, accNo, bankCode)
+   
     body = {
-        'source ': balance,
-        'amount': amount,
-        'reference': str(vUUID),
-        "reason": description,
-        'recipient': rcpt
+        'source': 'balance', 
+        'amount': int(amount * 100),  
+        'reference': str(vUUID),  
+        'reason': description,  
+        'recipient': rcpt 
     }
+
     response = requests.post(url, headers=headers, data=json.dumps(body))
     if response.status_code == 200:
         data = response.json()
-        status = data['data']['status']
-        if status == "success":
-            return status
-        return {"message": status}
+        return data['data']['status']
+
+    else:
+        data2 = response.json()
+        update = {
+            "message": data2['message'],
+            "status": data2['status']
+        }
+        return update
+
+    #     status = data['data']['status']
+    #     if status == "success":
+    #         return status
+    #     return {"message": status}
+
+    # return {"message": status}
+
+#print(generateRescipient("2270268887", "VICTOR CHUKWUEMEKA CHIBUOGWU", "057"))
+
+#print(transfer("balance", 50000, "Payment for book purchase", "RCP_lb7uuy19zg04g0j"))

@@ -2,7 +2,7 @@ from rest_framework import generics, status, response
 from .serializers import WalletSerializer, WalletFundingSerializer, TransferSerializer
 from .models import Wallet, WalletFunding, Transfer
 from rest_framework.views import APIView
-from paystack import initialize, transfer
+from paystack import initialize, transfer, generateRescipient
 from user.models import User
 import os
 import hashlib
@@ -97,9 +97,7 @@ class WebHook(APIView):
         else:
             print("Invalid paystack signature")
 
-# balance, amount, description, accName, accNo, bankCode
-from rest_framework.response import Response
-from rest_framework import status
+
 
 class TransferAction(APIView):
     def post(self, request):
@@ -110,60 +108,52 @@ class TransferAction(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if user:
-                # Query the user based on email
                 data = User.objects.filter(email=user).first()
-                
                 if data:
-                    # Get wallet associated with the user
                     wallet = Wallet.objects.filter(user=data).first()
                     if wallet:
-                        balance = wallet.balance
+                        balance = wallet.balance  # Keep it as Decimal
                         amount = serializer.validated_data['amount']
                         description = serializer.validated_data['description']
                         bank_code = serializer.validated_data['bank_code']
                         account_number = serializer.validated_data['account_number']
                         account_name = serializer.validated_data['account_name']
 
-                        # Convert Decimal to float before sending in the request
-                        balance = float(balance)  # Convert Decimal to float
-                        amount = float(amount)    # Convert Decimal to float
-
-                        # Call the transfer function (ensure this function is correct and returns valid data)
+                        # Generate recipient
+                        rcpt = generateRescipient(
+                            accName=account_name,
+                            accNo=account_number,
+                            bankCode=bank_code
+                        )
+                        print(rcpt)
+                        # Perform the transfer
                         transfer_response = transfer(
                             balance=balance,
-                            accNo=account_number,
-                            accName=account_name,
+                            amount=amount,
                             description=description,
-                            bankCode=bank_code,
-                            amount=amount
+                            rcpt=rcpt
                         )
-                        
-                        # If transfer_response is successful, return success response
-                        if transfer_response and transfer_response.get("status") == "success":
-                            return Response(
-                                {"message": "Transfer successful", "data": transfer_response},
-                                status=status.HTTP_200_OK
-                            )
-                        else:
-                            return Response(
-                                {"error": "Transfer failed", "details": transfer_response},
-                                status=status.HTTP_400_BAD_REQUEST
-                            )
-                    else:
+
+
                         return Response(
-                            {"error": "Wallet not found for the user"},
+                            {"error": "Transfer failed", "details": transfer_response},
                             status=status.HTTP_400_BAD_REQUEST
                         )
-                else:
-                    return Response(
-                        {"error": "User not found"},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
-            else:
-                return Response(
-                    {"error": "Invalid user data"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        #             else:
+        #                 return Response(
+        #                     {"error": "Wallet not found for the user"},
+        #                     status=status.HTTP_400_BAD_REQUEST
+        #                 )
+        #         else:
+        #             return Response(
+        #                 {"error": "User not found"},
+        #                 status=status.HTTP_404_NOT_FOUND
+        #             )
+        #     else:
+        #         return Response(
+        #             {"error": "Invalid user data"},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
         
-        # If serializer is not valid, return serializer errors
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # # If serializer is not valid, return serializer errors
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
