@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -105,7 +106,10 @@ SIMPLE_JWT = {
 }
 
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Add this line for Heroku deployment:
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
