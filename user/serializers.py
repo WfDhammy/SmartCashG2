@@ -45,6 +45,12 @@ class UserLoginSerializer(serializers.Serializer):
         
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = "__all__"
+        fields = "__all__"\
+        
+
+class VerifySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
