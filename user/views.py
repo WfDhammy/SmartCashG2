@@ -2,6 +2,7 @@ from .serializers import UserSerializer, UserLoginSerializer, UserSignupSerializ
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from .models import User
+from wallet.models import Wallet
 from datetime import datetime
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
@@ -18,7 +19,6 @@ class UserSignup(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         email = serializer.validated_data.get("email")
-
         # send_otp_email(request, email) 
         refresh = RefreshToken.for_user(user)
         response_data = {
@@ -28,6 +28,8 @@ class UserSignup(generics.CreateAPIView):
             "user": {
                 "id": str(user.id),
                 "role": user.role,
+                "email": user.email,
+                "username": user.username
             },
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -73,7 +75,7 @@ class LoginView(APIView):
             # Generate refresh and access tokens
             refresh = RefreshToken.for_user(user)
             login(request, user)
-            
+            wallet_data = Wallet.objects.filter(user=user).first()
             # Prepare the user data to return in the response
             user_data = {
                 'id': user.id,
@@ -81,33 +83,38 @@ class LoginView(APIView):
                 'role': user.role,
                 'email': user.email
             }
+            wallet_info = {
+                "id": wallet_data.id,
+                "balance": wallet_data.balance
+            }
             
-            # Try sending the login notification email to the user
-            try:
-                send_mail(
-                    subject='Smart IoT User Login Notification',
-                    message=f'Dear {user.username},\n\nYou logged in successfully at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.\n\nBest Regards,\nSmart IoT Team',
-                    from_email='abimbolaokeyedun919@gmail.com',  # Replace with your sender email
-                    recipient_list=[user.email],
-                )
-            except Exception as e:
-                # If there was an issue with the email, log the error or handle accordingly
-                print(f"Error sending email: {e}")
-                # You can return a message here or log it for further monitoring
-                # For now, we will not interrupt the login process, just inform the user
-                return Response({
-                    "message": "Login successful, but there was an issue sending the email. Please try again later.",
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "data": user_data
-                }, status=status.HTTP_200_OK)
+            # # Try sending the login notification email to the user
+            # try:
+            #     send_mail(
+            #         subject='Smart IoT User Login Notification',
+            #         message=f'Dear {user.username},\n\nYou logged in successfully at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.\n\nBest Regards,\nSmart IoT Team',
+            #         from_email='abimbolaokeyedun919@gmail.com',  # Replace with your sender email
+            #         recipient_list=[user.email],
+            #     )
+            # except Exception as e:
+            #     # If there was an issue with the email, log the error or handle accordingly
+            #     print(f"Error sending email: {e}")
+            #     # You can return a message here or log it for further monitoring
+            #     # For now, we will not interrupt the login process, just inform the user
+            # return Response({
+            #     "message": "Login successful, but there was an issue sending the email. Please try again later.",
+            #     "refresh": str(refresh),
+            #     "access": str(refresh.access_token),
+            #     "data": user_data
+            # }, status=status.HTTP_200_OK)
             
             # If email is sent successfully, return the success response with tokens and user data
             return Response({
                 "message": "Login successful. Please check your email (and spam folder).",
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
-                "data": user_data
+                "data": user_data,
+                "wallet": wallet_info  # Include the wallet information in the response for convenience and user reference
             }, status=status.HTTP_200_OK)
         
         # If serializer is not valid, return serializer errors
