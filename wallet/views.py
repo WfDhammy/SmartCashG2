@@ -45,10 +45,11 @@ class FundWallet(APIView):
         # Extract necessary data from the validated serializer
         wallet = serializer.validated_data['wallet']
         user_data = serializer.validated_data['user']
+        print(user_data)
         amount = serializer.validated_data['amount']
         
         # Retrieve the user object by email
-        user = User.objects.filter(email=user_data).first()
+        user = User.objects.filter(username=user_data).first()
         
         # If the user is not found, return an error message
         if user is None:
