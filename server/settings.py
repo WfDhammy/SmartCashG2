@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 ]
 CORS_ALLOWED_ORIGINS = ['http://localhost:5173', 
-                        'https://smartcash1-368091p7c-joanisgoofys-projects.vercel.app']
+                        'https://smartcash1-pptv2o21u-joanisgoofys-projects.vercel.app']
 
 MIDDLEWARE = [
     # 'user.middlewares.VerifyRequestMiddleware',

@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from .verify import send_otp_email
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 
 
@@ -122,7 +124,25 @@ class LoginView(APIView):
 
 
 class UserProfileView(APIView):
+
     def get(self, request):
         obj = User.objects.all()
         serializer = UserSerializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+
+# @csrf_exempt  # Exempt from CSRF for simplicity (use with caution in production)
+# def otp_request(request):
+#     if request.method == "POST":
+#         recipient_email = request.POST.get("email")
+
+#         if recipient_email:
+#             result = send_otp_email(recipient_email)
+#             return JsonResponse(result)
+#         else:
+#             return JsonResponse({"status": "error", "message": "Email is required."}, status=400)
+
+#     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
